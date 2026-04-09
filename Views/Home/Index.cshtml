@@ -1,0 +1,59 @@
+﻿@model ChemicalMixtureOptimizer.Models.OptimizationInput
+
+@{
+    ViewData["Title"] = "Оптимизация смеси химических веществ (Вариант 2)";
+}
+
+<h2>Расчет оптимального состава смеси</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">
+        <strong>Ошибка!</strong> @ViewBag.Error
+    </div>
+}
+
+<form asp-action="Optimize" method="post">
+    <div class="form-group">
+        <label>Общий вес смеси (кг):</label>
+        <input asp-for="RequiredMixtureKg" class="form-control" readonly value="1" />
+    </div>
+
+    <h4 class="mt-4">Минимальное содержание веществ (ед.):</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Вещество</th><th>Нижний предел</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>B1</td><td><input asp-for="MinSubstances[0]" class="form-control" /></td></tr>
+            <tr><td>B2</td><td><input asp-for="MinSubstances[1]" class="form-control" /></td></tr>
+            <tr><td>B3</td><td><input asp-for="MinSubstances[2]" class="form-control" /></td></tr>
+            <tr><td>B4</td><td><input asp-for="MinSubstances[3]" class="form-control" /></td></tr>
+        </tbody>
+    </table>
+
+    <h4 class="mt-4">Характеристики сырья:</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Сырье</th><th>Стоимость (у.е./кг)</th><th>B1</th><th>B2</th><th>B3</th><th>B4</th></tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Materials.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Materials[i].Name
+                        <input type="hidden" asp-for="Materials[i].Name" />
+                    </td>
+                    <td><input asp-for="Materials[i].Cost" class="form-control" style="width:100px" /></td>
+                    @for (int j = 0; j < 4; j++)
+                    {
+                        <td><input asp-for="Materials[i].Composition[j]" class="form-control" style="width:80px" /></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary mt-3">Рассчитать</button>
+</form>

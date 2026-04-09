@@ -1,0 +1,90 @@
+﻿@model ChemicalMixtureOptimizer.Models.OptimizationResult
+
+@{
+    ViewData["Title"] = "Результаты оптимизации";
+}
+
+<h2>Результаты расчета</h2>
+
+@if (Model.Success)
+{
+    <div class="alert alert-success">
+        <strong>Оптимальное решение найдено!</strong><br />
+        Общая стоимость смеси: <strong>@Model.TotalCost.ToString("F4") у.е.</strong>
+    </div>
+
+    <h4>Оптимальный состав смеси (кг):</h4>
+    <table class="table table-bordered">
+        <tr><th>A1</th><td>@Model.Quantities[0].ToString("F4") кг</td></tr>
+        <tr><th>A2</th><td>@Model.Quantities[1].ToString("F4") кг</td></tr>
+        <tr><th>A3</th><td>@Model.Quantities[2].ToString("F4") кг</td></tr>
+        <tr><th>A4</th><td>@Model.Quantities[3].ToString("F4") кг</td></tr>
+        <tr><th>A5</th><td>@Model.Quantities[4].ToString("F4") кг</td></tr>
+        <tr><th>Сумма</th><td>@Model.Quantities.Sum().ToString("F4") кг</td></tr>
+    </table>
+
+    <h4>Содержание веществ (ед.):</h4>
+    <table class="table table-bordered">
+        <thead><tr><th>Вещество</th><th>Требуется (≥)</th><th>Фактически</th><th>Выполнение</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>B1</td>
+                <td>@Model.MinLimits[0]</td>
+                <td>@Model.SubstanceAmounts[0].ToString("F2")</td>
+                <td>@(Model.SubstanceAmounts[0] >= Model.MinLimits[0] ? "✓" : "✗")</td>
+            </tr>
+            <tr>
+                <td>B2</td>
+                <td>@Model.MinLimits[1]</td>
+                <td>@Model.SubstanceAmounts[1].ToString("F2")</td>
+                <td>@(Model.SubstanceAmounts[1] >= Model.MinLimits[1] ? "✓" : "✗")</td>
+            </tr>
+            <tr>
+                <td>B3</td>
+                <td>@Model.MinLimits[2]</td>
+                <td>@Model.SubstanceAmounts[2].ToString("F2")</td>
+                <td>@(Model.SubstanceAmounts[2] >= Model.MinLimits[2] ? "✓" : "✗")</td>
+            </tr>
+            <tr>
+                <td>B4</td>
+                <td>@Model.MinLimits[3]</td>
+                <td>@Model.SubstanceAmounts[3].ToString("F2")</td>
+                <td>@(Model.SubstanceAmounts[3] >= Model.MinLimits[3] ? "✓" : "✗")</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">← Новый расчет</a>
+
+        <!-- Форма экспорта с передачей данных -->
+        <form asp-action="ExportToExcel" method="post" style="display: inline-block;">
+            <input type="hidden" name="result.Success" value="@Model.Success.ToString()" />
+            <input type="hidden" name="result.TotalCost" value="@Model.TotalCost" />
+
+            @for (int i = 0; i < Model.Quantities.Length; i++)
+            {
+                <input type="hidden" name="result.Quantities[@i]" value="@Model.Quantities[i]" />
+            }
+
+            @for (int i = 0; i < Model.SubstanceAmounts.Length; i++)
+            {
+                <input type="hidden" name="result.SubstanceAmounts[@i]" value="@Model.SubstanceAmounts[i]" />
+            }
+
+            @for (int i = 0; i < Model.MinLimits.Length; i++)
+            {
+                <input type="hidden" name="result.MinLimits[@i]" value="@Model.MinLimits[i]" />
+            }
+
+            <button type="submit" class="btn btn-success">📊 Экспорт в Excel (CSV)</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        <strong>Ошибка!</strong> @Model.ErrorMessage
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">← Вернуться и изменить данные</a>
+}
